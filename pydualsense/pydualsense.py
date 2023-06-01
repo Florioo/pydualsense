@@ -87,7 +87,8 @@ class pydualsense:
 
         # trackpad touch
         # handles 1 or 2 fingers
-        #self.trackpad_frame_reported = Event()
+        self.trackpad0_frame_reported = Event()
+        self.trackpad1_frame_reported = Event()
 
         # gyrometer events
         self.gyro_changed = Event()
@@ -386,6 +387,20 @@ class pydualsense:
                 self.state.gyro.Roll != self.last_states.gyro.Roll:
             self.gyro_changed(self.state.gyro.Pitch, self.state.gyro.Yaw, self.state.gyro.Roll)
 
+        if self.state.trackPadTouch0 != self.last_states.trackPadTouch0:
+            self.trackpad0_frame_reported(
+                self.state.trackPadTouch0.isActive,
+                self.state.trackPadTouch0.ID,
+                self.state.trackPadTouch0.X,
+                self.state.trackPadTouch0.Y)
+
+        if self.state.trackPadTouch1 != self.last_states.trackPadTouch1:
+            self.trackpad1_frame_reported(
+                self.state.trackPadTouch1.isActive,
+                self.state.trackPadTouch1.ID,
+                self.state.trackPadTouch1.X,
+                self.state.trackPadTouch1.Y)
+
         """
         copy current state into temp object to check next cycle if a change occuret
         and event trigger is needed
@@ -570,6 +585,11 @@ class DSTouchpad:
         self.X = 0
         self.Y = 0
 
+    def __eq__(self, other) -> bool:
+        return ((self.isActive == other.isActive) and
+                (self.ID == other.ID) and
+                (self.X == other.X) and
+                (self.Y == other.Y))
 
 class DSState:
 
