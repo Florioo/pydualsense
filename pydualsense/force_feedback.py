@@ -2,15 +2,17 @@
 #
 # https://gist.github.com/Nielk1/6d54cc2c00d2201ccb8c2720ad7538db
 
-from enum import IntEnum
-from typing import Optional
+from typing import TypeVar
 
-from pydualsense.enums import TriggerModes
-from pydualsense.pydualsense import DSTrigger, pydualsense
+from .enums import TriggerModes
+from .pydualsense import DSTrigger
 
-class Button(IntEnum):
-    R2 = 11
-    L2 = 22
+T = TypeVar("T", int, float)
+
+
+def clip(value: T, min_value: T, max_value: T) -> T:
+    return max(min(max_value, value), min_value)
+
 
 def ffb_off() -> DSTrigger:
     dst: DSTrigger = DSTrigger()
@@ -18,84 +20,71 @@ def ffb_off() -> DSTrigger:
     return dst
 
 
-def ffb_feedback(position: int, strength: int) -> Optional[DSTrigger]:
-    if not (0 <= position <= 9):
-        return None
-    if 0 < strength <= 8:
-        dst: DSTrigger = DSTrigger()
+def ffb_feedback(position: int, strength: int) -> DSTrigger:
+    dst: DSTrigger = DSTrigger()
 
-        force_value = strength - 1
-        force_zones = 0
-        active_zones = 0
-        for i in range(10):
-            force_zones |= (force_value << (3 * i))
-            active_zones |= (1 << i)
+    position = clip(position, 0, 9)
+    strength = clip(strength, 1, 8)
 
-        dst.mode = TriggerModes.FFB_Feedback
-        dst.forces[0] = (active_zones >> 0) & 0xff
-        dst.forces[1] = (active_zones >> 8) & 0xff
-        dst.forces[2] = (force_zones >> 0) & 0xff
-        dst.forces[3] = (force_zones >> 8) & 0xff
-        dst.forces[4] = (force_zones >> 16) & 0xff
-        dst.forces[5] = (force_zones >> 24) & 0xff
+    force_value = strength - 1
+    force_zones = 0
+    active_zones = 0
+    for i in range(position, 10):
+        force_zones |= force_value << (3 * i)
+        active_zones |= 1 << i
 
-        return dst
-    else:
-        return None
+    dst.mode = TriggerModes.FFB_Feedback
+    dst.forces[0] = (active_zones >> 0) & 0xFF
+    dst.forces[1] = (active_zones >> 8) & 0xFF
+    dst.forces[2] = (force_zones >> 0) & 0xFF
+    dst.forces[3] = (force_zones >> 8) & 0xFF
+    dst.forces[4] = (force_zones >> 16) & 0xFF
+    dst.forces[5] = (force_zones >> 24) & 0xFF
+
+    return dst
 
 
-def ffb_weapon(start_position: int, end_position: int, strength: int) -> Optional[DSTrigger]:
-    if not (2 <= start_position <= 7):
-        return None
-    if end_position > 8:
-        return None
-    if end_position <= start_position:
-        return None
-    if strength > 8:
-        return None
-    if 0 < strength <= 8:
-        dst: DSTrigger = DSTrigger()
+def ffb_weapon(start_position: int, end_position: int, strength: int) -> DSTrigger:
+    dst: DSTrigger = DSTrigger()
 
-        start_and_stop_zone = (1 << start_position) | (1 << end_position)
+    start_position = clip(start_position, 2, 7)
+    end_position = clip(end_position, start_position, 8)
+    strength = clip(strength, 1, 8)
 
-        dst.mode = TriggerModes.FFB_Weapon
-        dst.forces[0] = (start_and_stop_zone >> 0) & 0xff
-        dst.forces[1] = (start_and_stop_zone >> 8) & 0xff
-        dst.forces[2] = strength - 1
+    start_and_stop_zone = (1 << start_position) | (1 << end_position)
 
-        return dst
-    else:
-        return None
+    dst.mode = TriggerModes.FFB_Weapon
+    dst.forces[0] = (start_and_stop_zone >> 0) & 0xFF
+    dst.forces[1] = (start_and_stop_zone >> 8) & 0xFF
+    dst.forces[2] = strength - 1
 
-def ffb_vibration(position: int, amplitude: int, frequency: int) -> Optional[DSTrigger]:
-    if not (0 <= position <= 9):
-        return None
-    if amplitude > 8:
-        return None
-    if amplitude > 0 and frequency > 0:
-        dst: DSTrigger = DSTrigger()
-
-        strength_value = (amplitude - 1) & 0x07
-        amplitude_zones = 0
-        active_zones = 0
-
-        for i in range(10):
-            amplitude_zones |= strength_value << (3 * i)
-            active_zones |= (1 << i)
-
-        dst.mode = TriggerModes.FFB_Vibration
-        dst.forces[0] = (active_zones >> 0) & 0xff
-        dst.forces[1] = (active_zones >> 8) & 0xff
-        dst.forces[2] = (amplitude_zones >> 0) & 0xff
-        dst.forces[3] = (amplitude_zones >> 8) & 0xff
-        dst.forces[4] = (amplitude_zones >> 16) & 0xff
-        dst.forces[5] = (amplitude_zones >> 24) & 0xff
-        dst.forces[6] = (amplitude_zones >> 32) & 0xff
-        dst.forces[7] = (amplitude_zones >> 40) & 0xff
-        dst.forces[8] = frequency
-
-        return dst
-    else:
-        return None
+    return dst
 
 
+def ffb_vibration(position: int, amplitude: int, frequency: int) -> DSTrigger:
+    dst: DSTrigger = DSTrigger()
+
+    position = clip(position, 0, 9)
+    amplitude = clip(amplitude, 1, 8)
+    frequency = clip(frequency, 1, 255)
+
+    strength_value = (amplitude - 1) & 0x07
+    amplitude_zones = 0
+    active_zones = 0
+
+    for i in range(position, 10):
+        amplitude_zones |= strength_value << (3 * i)
+        active_zones |= 1 << i
+
+    dst.mode = TriggerModes.FFB_Vibration
+    dst.forces[0] = (active_zones >> 0) & 0xFF
+    dst.forces[1] = (active_zones >> 8) & 0xFF
+    dst.forces[2] = (amplitude_zones >> 0) & 0xFF
+    dst.forces[3] = (amplitude_zones >> 8) & 0xFF
+    dst.forces[4] = (amplitude_zones >> 16) & 0xFF
+    dst.forces[5] = (amplitude_zones >> 24) & 0xFF
+    #dst.forces[6] = (amplitude_zones >> 32) & 0xFF
+    #dst.forces[7] = (amplitude_zones >> 40) & 0xFF
+    dst.forces[8] = frequency
+
+    return dst

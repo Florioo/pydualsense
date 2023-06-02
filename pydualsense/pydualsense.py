@@ -470,7 +470,10 @@ class pydualsense:
             outReport[15] = self.triggerR.forces[3]
             outReport[16] = self.triggerR.forces[4]
             outReport[17] = self.triggerR.forces[5]
-            outReport[20] = self.triggerR.forces[6]
+            outReport[18] = self.triggerR.forces[6]
+            outReport[19] = self.triggerR.forces[7]
+            outReport[20] = self.triggerR.forces[8]
+            outReport[21] = self.triggerR.forces[9]
 
             outReport[22] = self.triggerL.mode.value
             outReport[23] = self.triggerL.forces[0]
@@ -479,7 +482,10 @@ class pydualsense:
             outReport[26] = self.triggerL.forces[3]
             outReport[27] = self.triggerL.forces[4]
             outReport[28] = self.triggerL.forces[5]
-            outReport[31] = self.triggerL.forces[6]
+            outReport[29] = self.triggerL.forces[6]
+            outReport[30] = self.triggerL.forces[7]
+            outReport[31] = self.triggerL.forces[8]
+            outReport[32] = self.triggerL.forces[9]
 
             outReport[39] = self.light.ledOption.value
             outReport[42] = self.light.pulseOptions.value
@@ -823,7 +829,7 @@ class DSTrigger:
         self.mode: TriggerModes = TriggerModes.Off
 
         # force parameters for the triggers
-        self.forces = [0 for i in range(7)]
+        self.forces = [0 for i in range(10)]
 
     def setForce(self, forceID: int = 0, force: int = 0):
         """
