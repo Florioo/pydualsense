@@ -45,6 +45,19 @@ class TriggerModes(IntFlag):
     Pulse_AB = 0x2 | 0x20 | 0x04
     Calibration = 0xFC
 
+    FFB_Off = 0x05
+    FFB_Feedback = 0x21
+    FFB_Weapon = 0x25
+    FFB_Vibration = 0x26
+    FFB_Bow = 0x22
+    FFB_Galloping = 0x23
+    FFB_Machine = 0x27
+    FFB_SimpleFeedback = 0x01
+    FFB_SimpleWeapon = 0x02
+    FFB_SimpleVibration = 0x06
+    FFB_LimitedFeedback = 0x11
+    FFB_LimitedWeapon = 0x12
+
 
 class BatteryState(IntFlag):
     POWER_SUPPLY_STATUS_DISCHARGING = 0x0
