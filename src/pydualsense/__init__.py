@@ -1,12 +1,11 @@
 from .enums import LedOptions, Brightness, PlayerID, PulseOptions, TriggerModes
-from .pydualsense import pydualsense, DeviceInputState
+from .pydualsense import DualsenseController
 
 __all__ = [
-    "pydualsense",
+    "DualsenseController",
     "LedOptions",
     "Brightness",
     "PlayerID",
     "PulseOptions",
     "TriggerModes",
-    "DeviceInputState",
 ]

@@ -1,6 +1,6 @@
 from typing import List
 
-from pydualsense.checksum import compute
+from .checksum import compute
 from .enums import BatteryState, Brightness, ConnectionType, LedOptions, PlayerID, PulseOptions, TriggerModes
 from pydantic import BaseModel, Field
 
@@ -134,7 +134,8 @@ class DeviceInputState(BaseModel):
     share: bool = False
     ps: bool = False
     mic: bool = False
-
+    touchBtn: bool = False
+    
     accel: VectorModel = VectorModel()
     gyroscope: VectorModel = VectorModel()
 
@@ -143,7 +144,7 @@ class DeviceInputState(BaseModel):
 
     battery: DSBatteryModel = DSBatteryModel()
     
-    def from_state(self, state: bytearray):
+    def from_state(self, state: bytes):
         states = list(state)
 
         # states 0 is always 1
@@ -177,7 +178,7 @@ class DeviceInputState(BaseModel):
         misc2 = states[10]
         self.ps = (misc2 & (1 << 0)) != 0
         self.touchBtn = (misc2 & 0x02) != 0
-        self.micBtn = (misc2 & 0x04) != 0
+        self.mic = (misc2 & 0x04) != 0
 
         # trackpad touch
         self.trackPadTouch0.ID = states[33] & 0x7F
@@ -224,7 +225,8 @@ class PlayerLed(BaseModel):
         elif self.player_count == 4:
             return PlayerID.PLAYER_4
 
-        raise ValueError("Player count must be between 1 and 4")
+        else:
+            return PlayerID.PLAYER_NO
 
     def get_led_option(self) -> LedOptions:
         return LedOptions.PlayerLedBrightness
@@ -254,7 +256,9 @@ class DeviceOutputState(BaseModel):
 
     rgb_led: LedState = LedState()
     player_led: PlayerLed = PlayerLed()
-
+    
+    bt_led_initialized: bool = False
+    
     def prepareReport(self, connection_type: ConnectionType) -> list:
         outReport = [0] * connection_type.get_out_report_length()  # create empty list with range of output report
         outReport[0] = connection_type.get_type()  # bt type

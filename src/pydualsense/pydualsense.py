@@ -3,26 +3,25 @@ import os
 import sys
 from sys import platform
 
-from pydualsense.models import DeviceOutputState, DeviceInputState
+from .models import DeviceOutputState, DeviceInputState
+import pathlib
 
-if platform.startswith("Windows") and sys.version_info >= (3, 8):
-    os.add_dll_directory(os.getcwd())
+
+if platform.startswith("win") and sys.version_info >= (3, 8):
+    print("Adding DLL directory")
+    print(pathlib.Path(__file__).parent.absolute())
+    os.add_dll_directory(str(pathlib.Path(__file__).parent.absolute()))
 
 import hidapi
 from .enums import ConnectionType  # type: ignore
 import threading
 
-logger = logging.getLogger()
-FORMAT = "%(asctime)s %(message)s"
-logging.basicConfig(format=FORMAT)
-logger.setLevel(logging.INFO)
 
-
-class pydualsense:
+class DualsenseController:
     report_thread: threading.Thread | None = None
     kill_thread: bool = False
 
-    def __init__(self, verbose: bool = False) -> None:
+    def __init__(self) -> None:
         """
         initialise the library but dont connect to the controller. call :func:`init() <pydualsense.pydualsense.init>`
         to connect to the controller
@@ -30,11 +29,6 @@ class pydualsense:
         Args:
             verbose (bool, optional): display verbose out (debug prints of input and output). Defaults to False.
         """
-        # TODO: maybe add a init function to not automatically allocate controller when class is declared
-        self.verbose = verbose
-
-        if self.verbose:
-            logger.setLevel(logging.DEBUG)
 
         self.bt_led_initialized = False
 
@@ -99,7 +93,7 @@ class pydualsense:
         # TODO: detect connection mode, bluetooth has a bigger write buffer
         # TODO: implement multiple controllers working
         if sys.platform.startswith("win32"):
-            import pydualsense.hidguardian as hidguardian
+            from . import hidguardian as hidguardian
 
             if hidguardian.check_hide():
                 raise Exception(
@@ -128,10 +122,8 @@ class pydualsense:
 
             # read data from the input report of the controller
             inReport = self.device.read(self.conType.get_in_report_length())
-            if self.verbose:
-                logger.debug(inReport)
 
-            assert isinstance(inReport, bytearray)
+            assert isinstance(inReport, bytes)
 
             # decrypt the packet and bind the inputs
             if self.conType == ConnectionType.BT:

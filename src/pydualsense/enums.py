@@ -49,6 +49,7 @@ class Brightness(IntFlag):
 
 
 class PlayerID(IntFlag):
+    PLAYER_NO = 0
     PLAYER_1 = 4
     PLAYER_2 = 10
     PLAYER_3 = 21
