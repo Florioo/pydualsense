@@ -5,7 +5,7 @@
 from typing import TypeVar
 
 from .enums import TriggerModes
-from .pydualsense import DSTrigger
+from .models import TriggerModel
 
 T = TypeVar("T", int, float)
 
@@ -14,14 +14,14 @@ def clip(value: T, min_value: T, max_value: T) -> T:
     return max(min(max_value, value), min_value)
 
 
-def ffb_off() -> DSTrigger:
-    dst: DSTrigger = DSTrigger()
+def ffb_off() -> TriggerModel:
+    dst: TriggerModel = TriggerModel()
     dst.mode = TriggerModes.FFB_Off
     return dst
 
 
-def ffb_feedback(position: int, strength: int) -> DSTrigger:
-    dst: DSTrigger = DSTrigger()
+def ffb_feedback(position: int, strength: int) -> TriggerModel:
+    dst: TriggerModel = TriggerModel()
 
     position = clip(position, 0, 9)
     strength = clip(strength, 1, 8)
@@ -44,8 +44,8 @@ def ffb_feedback(position: int, strength: int) -> DSTrigger:
     return dst
 
 
-def ffb_weapon(start_position: int, end_position: int, strength: int) -> DSTrigger:
-    dst: DSTrigger = DSTrigger()
+def ffb_weapon(start_position: int, end_position: int, strength: int) -> TriggerModel:
+    dst: TriggerModel = TriggerModel()
 
     start_position = clip(start_position, 2, 7)
     end_position = clip(end_position, start_position, 8)
@@ -61,8 +61,8 @@ def ffb_weapon(start_position: int, end_position: int, strength: int) -> DSTrigg
     return dst
 
 
-def ffb_vibration(position: int, amplitude: int, frequency: int) -> DSTrigger:
-    dst: DSTrigger = DSTrigger()
+def ffb_vibration(position: int, amplitude: int, frequency: int) -> TriggerModel:
+    dst: TriggerModel = TriggerModel()
 
     position = clip(position, 0, 9)
     amplitude = clip(amplitude, 1, 8)
@@ -83,8 +83,8 @@ def ffb_vibration(position: int, amplitude: int, frequency: int) -> DSTrigger:
     dst.forces[3] = (amplitude_zones >> 8) & 0xFF
     dst.forces[4] = (amplitude_zones >> 16) & 0xFF
     dst.forces[5] = (amplitude_zones >> 24) & 0xFF
-    #dst.forces[6] = (amplitude_zones >> 32) & 0xFF
-    #dst.forces[7] = (amplitude_zones >> 40) & 0xFF
+    # dst.forces[6] = (amplitude_zones >> 32) & 0xFF
+    # dst.forces[7] = (amplitude_zones >> 40) & 0xFF
     dst.forces[8] = frequency
 
     return dst

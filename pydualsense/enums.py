@@ -5,6 +5,29 @@ class ConnectionType(IntFlag):
     BT = 0x0
     USB = 0x1
 
+    def get_out_report_length(self):
+        if self == ConnectionType.BT:
+            return 78
+        elif self == ConnectionType.USB:
+            return 64
+        else:
+            return 0
+
+    def get_in_report_length(self):
+        if self == ConnectionType.BT:
+            return 78
+        elif self == ConnectionType.USB:
+            return 64
+        else:
+            return 0
+
+    def get_type(self):
+        if self == ConnectionType.BT:
+            return 0x31
+        elif self == ConnectionType.USB:
+            return 0x02
+        raise ValueError("Invalid Connection Type")
+
 
 class LedOptions(IntFlag):
     Off = 0x0
@@ -63,7 +86,7 @@ class BatteryState(IntFlag):
     POWER_SUPPLY_STATUS_DISCHARGING = 0x0
     POWER_SUPPLY_STATUS_CHARGING = 0x1
     POWER_SUPPLY_STATUS_FULL = 0x2
-    POWER_SUPPLY_STATUS_NOT_CHARGING = 0xb
-    POWER_SUPPLY_STATUS_ERROR = 0xf
-    POWER_SUPPLY_TEMP_OR_VOLTAGE_OUT_OF_RANGE = 0xa
+    POWER_SUPPLY_STATUS_NOT_CHARGING = 0xB
+    POWER_SUPPLY_STATUS_ERROR = 0xF
+    POWER_SUPPLY_TEMP_OR_VOLTAGE_OUT_OF_RANGE = 0xA
     POWER_SUPPLY_STATUS_UNKNOWN = 0x0

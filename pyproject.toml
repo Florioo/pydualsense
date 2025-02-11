@@ -9,6 +9,8 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 hidapi-usb = "^0.3.1"
+pydantic = "^2.10.6"
+ruff = "^0.9.6"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -22,3 +24,12 @@ poethepoet = "^0.20.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff.lint]
+select = ["E", "F"]
+ignore = ["E402"]
+
+[tool.ruff]
+line-length = 120
+exclude = ["**.pyi", "**/.venv/**"]
+include = ["/**.py", "test/**.py"]
