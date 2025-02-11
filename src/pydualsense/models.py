@@ -114,11 +114,11 @@ class LedState(BaseModel):
 class DeviceInputState(BaseModel):
     L1: bool = False
     L2: float = 0
-    L3: bool = False
+    # L3: bool = False See joystick.pressed
 
     R1: bool = False
     R2: float = 0
-    R3: bool = False
+    # R3: bool = False
 
     left_joystick: JoystickModel = JoystickModel()
     right_joystick: JoystickModel = JoystickModel()
@@ -152,8 +152,8 @@ class DeviceInputState(BaseModel):
         self.left_joystick.Y = (states[2] - 127) / 127.0
         self.right_joystick.X = (states[3] - 127) / 127.0
         self.right_joystick.Y = (states[4] - 127) / 127.0
-        self.L2 = states[5]
-        self.R2 = states[6]
+        self.L2 = states[5]/255.0
+        self.R2 = states[6]/255.0
 
         # state 7 always increments -> not used anywhere
         buttonState = states[8]
@@ -166,12 +166,12 @@ class DeviceInputState(BaseModel):
         self.dpad.from_state(buttonState & 0x0F)
 
         misc = states[9]
-        self.R3 = (misc & (1 << 7)) != 0
-        self.L3 = (misc & (1 << 6)) != 0
+        self.right_joystick.pressed = (misc & (1 << 7)) != 0
+        self.left_joystick.pressed = (misc & (1 << 6)) != 0
         self.options = (misc & (1 << 5)) != 0
         self.share = (misc & (1 << 4)) != 0
-        self.right_joystick.pressed = (misc & (1 << 3)) != 0
-        self.left_joystick.pressed = (misc & (1 << 2)) != 0
+        # other = (misc & (1 << 3)) != 0
+        # other  = (misc & (1 << 2)) != 0
         self.R1 = (misc & (1 << 1)) != 0
         self.L1 = (misc & (1 << 0)) != 0
 
