@@ -3,7 +3,7 @@ from typing import List
 from .checksum import compute
 from .enums import BatteryState, Brightness, ConnectionType, LedOptions, PlayerID, PulseOptions, TriggerModes
 from pydantic import BaseModel, Field
-
+import math
 
 class TouchpaModel(BaseModel):
     isActive: bool = False
@@ -36,7 +36,14 @@ class JoystickModel(BaseModel):
     Y: float = 0
     pressed: bool = False
 
-
+    @property
+    def magnitude(self) -> float:
+        return (self.X ** 2 + self.Y ** 2) ** 0.5
+    
+    @property
+    def angle(self) -> float:
+        return math.degrees(math.atan2(self.Y, self.X))
+    
 class DpadModel(BaseModel):
     up: bool = False
     down: bool = False
@@ -109,6 +116,11 @@ class LedState(BaseModel):
     R: float = 0
     G: float = 0
     B: float = 0
+    
+    def from_tuple(self, color: tuple):
+        self.R = color[0] / 255.0
+        self.G = color[1] / 255.0
+        self.B = color[2] / 255.0
 
 
 class DeviceInputState(BaseModel):
@@ -289,8 +301,8 @@ class DeviceOutputState(BaseModel):
             # 0x80 ???
             outReport[2] = 0x1 | 0x2 | 0x4 | 0x10 | 0x40  # [2]
 
-            outReport[3] = int(self.right_motor)  # right low freq motor 0-255 # [3]
-            outReport[4] = int(self.left_motor)  # left low freq motor 0-255 # [4]
+            outReport[3] = int(self.right_motor*255)  # right low freq motor 0-255 # [3]
+            outReport[4] = int(self.left_motor*255)  # left low freq motor 0-255 # [4]
 
             # outReport[5] - outReport[8] audio related
 

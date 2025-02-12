@@ -8,8 +8,6 @@ import pathlib
 
 
 if platform.startswith("win") and sys.version_info >= (3, 8):
-    print("Adding DLL directory")
-    print(pathlib.Path(__file__).parent.absolute())
     os.add_dll_directory(str(pathlib.Path(__file__).parent.absolute()))
 
 import hidapi
